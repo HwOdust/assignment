@@ -1,10 +1,12 @@
+//snake2 ê°í”„ ê³¼ì œ ì†ŒìŠ¤ íŒŒì¼
+
 #include <iostream>
 #include <conio.h>   //getch() and kbhit()
 #include <time.h>    //including time
 #include <windows.h> //sleep functions
 #include <fstream>   //file handling
 #include <string>
-#include <vector> //Àå¾Ö¹° °ü¸®
+#include <vector> //ì¥ì• ë¬¼ ê´€ë¦¬
 
 #define Max 30
 static const int MAX_TAIL = 1000;
@@ -289,10 +291,10 @@ public:
     {
         if (S2.headX == fruitX && S2.headY == fruitY) {
             fruit_random_pos();
-            score2 += 10;           // Ãß°¡
-            S2.increase_size();     // Ãß°¡
+            score2 += 10;           // ì¶”ê°€
+            S2.increase_size();     // ì¶”ê°€
         }
-        S2.tail_movement();         // Ãß°¡
+        S2.tail_movement();         // ì¶”ê°€
     }
 } F;
 
@@ -308,7 +310,7 @@ public:
         : x(_x), y(_y), type(_t) {}
 };
 
-vector<Object> objects; //¸ğµç ¿ÀºêÁ§Æ®¸¦ °ü¸®ÇÒ º¤ÅÍ
+vector<Object> objects; //ëª¨ë“  ì˜¤ë¸Œì íŠ¸ë¥¼ ê´€ë¦¬í•  ë²¡í„°
 
 
 class level : public Fruit
@@ -321,16 +323,16 @@ public:
 
     bool isOverlap(int nx, int ny)
     {
-        // °úÀÏ°ú °ãÃÆ´ÂÁö
+        // ê³¼ì¼ê³¼ ê²¹ì³¤ëŠ”ì§€
         if (nx == F.fruitX && ny == F.fruitY) return true;
-        // ¹ì ¸Ó¸®¿Í °ãÃÆ´ÂÁö
+        // ë±€ ë¨¸ë¦¬ì™€ ê²¹ì³¤ëŠ”ì§€
         if (nx == S.headX && ny == S.headY) return true;
-        // ¹ì ²¿¸®¿Í °ãÃÆ´ÂÁö
+        // ë±€ ê¼¬ë¦¬ì™€ ê²¹ì³¤ëŠ”ì§€
         for (int i = 0; i < S.size; ++i) {
             if (S.tailX[i] == nx && S.tailY[i] == ny)
                 return true;
         }
-        // ±âÁ¸ ¿ÀºêÁ§Æ®¿Í °ãÃÆ´ÂÁö (Àü¿ª vector<Object> objects »ç¿ë)
+        // ê¸°ì¡´ ì˜¤ë¸Œì íŠ¸ì™€ ê²¹ì³¤ëŠ”ì§€ (ì „ì—­ vector<Object> objects ì‚¬ìš©)
         for (auto& o : objects) {
             if (o.x == nx && o.y == ny)
                 return true;
@@ -349,20 +351,20 @@ public:
 
             lev++;
             F.score = 0;
-            objects.clear(); //ÀÌÀü ·¹º§ ¿ÀºêÁ§Æ® ÃÊ±âÈ­
+            objects.clear(); //ì´ì „ ë ˆë²¨ ì˜¤ë¸Œì íŠ¸ ì´ˆê¸°í™”
 
-            //Àå¾Ö¹° »ı¼º
+            //ì¥ì• ë¬¼ ìƒì„±
             {
                 int ox, oy;
                 do
                 {
                     ox = 1 + rand() % (BoardX - 2);
                     oy = 1 + rand() % (BoardY - 2);
-                } while (isOverlap(ox, oy)); //ÁÂÇ¥ Áßº¹ È®ÀÎ
+                } while (isOverlap(ox, oy)); //ì¢Œí‘œ ì¤‘ë³µ í™•ì¸
                 objects.emplace_back(ox, oy, OBSTACLE);
             }
 
-            //Áö·Ú °³¼ö Á¶Àı ¹× »ı¼º
+            //ì§€ë¢° ê°œìˆ˜ ì¡°ì ˆ ë° ìƒì„±
             {
                 for (int i = 0; i < lev; i++)
                 {
@@ -375,7 +377,7 @@ public:
                 }
             }
 
-            //¹öÇÁ °³¼ö Á¶Àı ¹× »ı¼º
+            //ë²„í”„ ê°œìˆ˜ ì¡°ì ˆ ë° ìƒì„±
             for (int i = 0; i < lev; ++i) {
                 int bx, by;
                 do {
@@ -386,7 +388,7 @@ public:
             }
 
 
-            //È­¸é Å©±â Ãà¼Ò, ¹ì/°úÀÏ ÃÊ±â À§Ä¡ Àç¼³Á¤
+            //í™”ë©´ í¬ê¸° ì¶•ì†Œ, ë±€/ê³¼ì¼ ì´ˆê¸° ìœ„ì¹˜ ì¬ì„¤ì •
             F.max_score += 50;
             BoardX -= 3;
             BoardY -= 3;
@@ -406,7 +408,7 @@ public:
         }
         else if (lev > max_level)
         {
-            show(1); //ÃÖÁ¾ ½Â¸®
+            show(1); //ìµœì¢… ìŠ¹ë¦¬
         }
     }
 } L;
@@ -415,17 +417,17 @@ class Game : public level
 {
 public:
 
-    //ÁÂÇ¥ °ãÄ¡´ÂÁö È®ÀÎÇÏ´Â ÇÔ¼ö
+    //ì¢Œí‘œ ê²¹ì¹˜ëŠ”ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
     bool isOverlap(int nx, int ny)
     {
-        if (nx == F.fruitX && ny == F.fruitY) //°úÀÏ°ú °ãÄ¡¸é
+        if (nx == F.fruitX && ny == F.fruitY) //ê³¼ì¼ê³¼ ê²¹ì¹˜ë©´
             return true;
         if (nx == S.headX && ny == S.headY)
             return true;
         for (int i = 0; i < S.size; ++i)
-            if (S.tailX[i] == nx && S.tailY[i] == ny) //¹ì°ú °ãÄ¡¸é
+            if (S.tailX[i] == nx && S.tailY[i] == ny) //ë±€ê³¼ ê²¹ì¹˜ë©´
                 return true;
-        for (auto& o : objects) //±âÁ¸ ¿ÀºêÁ§Æ®¿Í °ãÄ¡¸é
+        for (auto& o : objects) //ê¸°ì¡´ ì˜¤ë¸Œì íŠ¸ì™€ ê²¹ì¹˜ë©´
             if (o.x == nx && o.y == ny)
                 return true;
         return false;
@@ -438,17 +440,17 @@ public:
         {
             for (int j = 0; j < BoardX; j++)
             {
-                if (i == 0 || i == BoardY - 1 || j == 0 || j == BoardX - 1) //º¸µåÆÇ Ãâ·Â
+                if (i == 0 || i == BoardY - 1 || j == 0 || j == BoardX - 1) //ë³´ë“œíŒ ì¶œë ¥
                     cout << BLUE << "|" << RESET;
-                else if (i == F.fruitY && j == F.fruitX) //°úÀÏ Ãâ·Â
+                else if (i == F.fruitY && j == F.fruitX) //ê³¼ì¼ ì¶œë ¥
                     cout << YELLOW << "$" << RESET;
-                else if (i == S.headY && j == S.headX) //¹ì ¸Ó¸® Ãâ·Â
+                else if (i == S.headY && j == S.headX) //ë±€ ë¨¸ë¦¬ ì¶œë ¥
                     cout << RED << "0" << RESET;
-                else if (L.mode == 'M' && i == S2.headY && j == S2.headX) //¸ÖÆ¼¸ğµåÀÏ ¶§¸¸, s2 Ãâ·Â
-                    cout << PURPLE << "0" << RESET;  // Ãß°¡
+                else if (L.mode == 'M' && i == S2.headY && j == S2.headX) //ë©€í‹°ëª¨ë“œì¼ ë•Œë§Œ, s2 ì¶œë ¥
+                    cout << PURPLE << "0" << RESET;  // ì¶”ê°€
                 else
                 {
-                    // ¿ÀºêÁ§Æ® Ãâ·Â
+                    // ì˜¤ë¸Œì íŠ¸ ì¶œë ¥
                     bool drawn = false;
                     for (auto& o : objects)
                     {
@@ -463,7 +465,7 @@ public:
                     }
                     if (drawn) continue;
 
-                    //¹ì ²¿¸® Ãâ·Â
+                    //ë±€ ê¼¬ë¦¬ ì¶œë ¥
                     bool tail_print = false;
                     for (int k = 0; k < S.size; k++)
                     {
@@ -478,7 +480,7 @@ public:
                         {
                             if (S2.tailX[k] == j && S2.tailY[k] == i)
                             {
-                                cout << PURPLE << "o" << RESET;  // Ãß°¡
+                                cout << PURPLE << "o" << RESET;  // ì¶”ê°€
                                 tail_print = true;
                             }
                         }
@@ -486,7 +488,7 @@ public:
                     if (tail_print)continue;
 
 
-                    cout << " ";//±× ¿Ü ºóÄ­
+                    cout << " ";//ê·¸ ì™¸ ë¹ˆì¹¸
                 }
             }
             cout << endl;
@@ -496,53 +498,53 @@ public:
 
     void game_flow()
     {
-        //0.¸ÖÆ¼¸ğµå: ¸Ó¸®³¢¸® ´êÀ¸¸é ¹Ù·Î °ÔÀÓ Á¾·á
+        //0.ë©€í‹°ëª¨ë“œ: ë¨¸ë¦¬ë¼ë¦¬ ë‹¿ìœ¼ë©´ ë°”ë¡œ ê²Œì„ ì¢…ë£Œ
         if (L.mode == 'M' && S.headX == S2.headX && S.headY == S2.headY) {
             set_screen();
             cout << RED << "\n\n\tHeads collided! Game Over.\n" << RESET;
             Sleep(1000);
             flow_after_gameover();
-            return;  // ³ª¸ÓÁö ·ÎÁ÷ ½ºÅµ
+            return;  // ë‚˜ë¨¸ì§€ ë¡œì§ ìŠ¤í‚µ
         }
 
-        //1. ¿ÀºêÁ§Æ® Ãæµ¹ Ã³¸®
+        //1. ì˜¤ë¸Œì íŠ¸ ì¶©ëŒ ì²˜ë¦¬
         for (auto it = objects.begin(); it != objects.end(); ++it)
         {
             if (S.headX == it->x && S.headY == it->y)
             {
                 objectType t = it->type;
-                objects.erase(it); //Ãæµ¹ÇÑ ¿ÀºêÁ§Æ® Á¦°Å
+                objects.erase(it); //ì¶©ëŒí•œ ì˜¤ë¸Œì íŠ¸ ì œê±°
 
-                if (t == OBSTACLE) //Àå¾Ö¹°ÀÌ¶ó¸é
+                if (t == OBSTACLE) //ì¥ì• ë¬¼ì´ë¼ë©´
                 {
                     set_screen();
                     cout << RED << "\n\n\tYou hit an obstacle! Game Over." << RESET << endl;
                     Sleep(1000);
-                    show(0);  // °ÔÀÓ Á¾·á
+                    show(0);  // ê²Œì„ ì¢…ë£Œ
                 }
-                else if (t == MINE)  //Áö·Ú¶ó¸é
+                else if (t == MINE)  //ì§€ë¢°ë¼ë©´
                 {
-                    if (F.score >= 10)F.score -= 10; //Á¡¼ö °¨¼Ò
+                    if (F.score >= 10)F.score -= 10; //ì ìˆ˜ ê°ì†Œ
                 }
-                else if (t == BUFF) //¹öÇÁ¶ó¸é
+                else if (t == BUFF) //ë²„í”„ë¼ë©´
                 {
-                    if (S.size > 1) S.size--; //±æÀÌ 1 °¨¼Ò
+                    if (S.size > 1) S.size--; //ê¸¸ì´ 1 ê°ì†Œ
                 }
-                break;  // ÇÑ ¹ø¸¸ Ã³¸®
+                break;  // í•œ ë²ˆë§Œ ì²˜ë¦¬
             }
 
         }
-        //2. ÀÏ¹İ °ÔÀÓ Èå¸§
-        if (game_over() == 0) //°ÔÀÓ ¿À¹ö°¡ ¾Æ´Ï¶ó¸é
+        //2. ì¼ë°˜ ê²Œì„ íë¦„
+        if (game_over() == 0) //ê²Œì„ ì˜¤ë²„ê°€ ì•„ë‹ˆë¼ë©´
         {
-            F.fruit_eat(); //°úÀÏ Ã¼Å©
+            F.fruit_eat(); //ê³¼ì¼ ì²´í¬
             if (L.mode == 'M')F.fruit_eat2();
 
-            if (L.mode != 'M')L.incr_level(); //·¹º§ Ã¼Å©
+            if (L.mode != 'M')L.incr_level(); //ë ˆë²¨ ì²´í¬
 
             set_screen();
 
-            //»ç¿ëÀÚ Á¤º¸ ¹× ½ºÄÚ¾î Ãâ·Â
+            //ì‚¬ìš©ì ì •ë³´ ë° ìŠ¤ì½”ì–´ ì¶œë ¥
             if (L.mode == 'M')
             {
                 cout << "\n\tP1 Score: " << F.score
@@ -555,7 +557,7 @@ public:
             else cout << "\n";
             show_board();
         }
-        else //°ÔÀÓ ¿À¹ö¶ó¸é
+        else //ê²Œì„ ì˜¤ë²„ë¼ë©´
         {
             if (U.return_highscore() < F.score)
             {
@@ -570,9 +572,9 @@ public:
             else
                 cout << "\t\tGAME OVER......";
 
-            flow_after_gameover(); //Àç½ÃÀÛ ¶Ç´Â Á¾·á Ã³¸®
+            flow_after_gameover(); //ì¬ì‹œì‘ ë˜ëŠ” ì¢…ë£Œ ì²˜ë¦¬
         }
-        Sleep(30); //ÇÁ·¹ÀÓ ¼Óµµ Á¶Àı
+        Sleep(30); //í”„ë ˆì„ ì†ë„ ì¡°ì ˆ
     }
     bool game_over()
     {
@@ -584,7 +586,7 @@ public:
         if (L.mode == 'M') {
             for (int i = 5; i < S2.size; i++)
                 if (S2.tailX[i] == S2.headX && S2.tailY[i] == S2.headY)
-                    return true;  // Ãß°¡
+                    return true;  // ì¶”ê°€
         }
         if (L.mode == 'G'||L.mode=='M')
         {
@@ -669,10 +671,10 @@ public:
     }
 
     bool game_over1() {
-        // 1) Çìµå-Åõ-Çìµå Ãæµ¹
+        // 1) í—¤ë“œ-íˆ¬-í—¤ë“œ ì¶©ëŒ
         if (S.headX == S2.headX && S.headY == S2.headY)
             return true;
-        // 2) P1 ÀÚ±â ¸öÅë°ú Ãæµ¹
+        // 2) P1 ìê¸° ëª¸í†µê³¼ ì¶©ëŒ
         for (int i = 5; i < S.size; ++i) {
             if (S.tailX[i] == S.headX && S.tailY[i] == S.headY)
                 return true;
@@ -680,12 +682,12 @@ public:
         return false;
     }
 
-    // P2 Ãæµ¹ °Ë»ç (¸ÖÆ¼ Àü¿ë)
+    // P2 ì¶©ëŒ ê²€ì‚¬ (ë©€í‹° ì „ìš©)
     bool game_over2() {
-        // 1) Çìµå-Åõ-Çìµå Ãæµ¹
+        // 1) í—¤ë“œ-íˆ¬-í—¤ë“œ ì¶©ëŒ
         if (S2.headX == S.headX && S2.headY == S.headY)
             return true;
-        // 2) P2 ÀÚ±â ¸öÅë°ú Ãæµ¹
+        // 2) P2 ìê¸° ëª¸í†µê³¼ ì¶©ëŒ
         for (int i = 5; i < S2.size; ++i) {
             if (S2.tailX[i] == S2.headX && S2.tailY[i] == S2.headY)
                 return true;
@@ -804,7 +806,7 @@ void hide_cursor()
     SetConsoleCursorInfo(hConsole, &cursorInfo);
 }
 
-// (main ÇÔ¼ö À§, ¸ğµç Å¬·¡½º ¼±¾ğ ¾Æ·¡¿¡ Ãß°¡)
+// (main í•¨ìˆ˜ ìœ„, ëª¨ë“  í´ë˜ìŠ¤ ì„ ì–¸ ì•„ë˜ì— ì¶”ê°€)
 void handle_input() {
     if (kbhit()) 
     {
@@ -814,13 +816,13 @@ void handle_input() {
             S.direction = ch;
             break;
         case 'i': case 'j': case 'k': case 'l':
-            if (L.mode == 'M') S2.direction = ch; // ¸ÖÆ¼ÀÏ ¶§¸¸ P2
+            if (L.mode == 'M') S2.direction = ch; // ë©€í‹°ì¼ ë•Œë§Œ P2
             break;
         case 'x':
             save_game();
             break;
         default:
-            ; // ³ª¸ÓÁö´Â ¹«½Ã
+            ; // ë‚˜ë¨¸ì§€ëŠ” ë¬´ì‹œ
         }
     }
 }
@@ -882,7 +884,7 @@ int main()
                 else if (flow == 3)
                 {
                     L.mode = 'M';
-                    // --- Ãß°¡: ÇÃ·¹ÀÌ¾î2 ¹ì ÃÊ±â À§Ä¡/»óÅÂ ÃÊ±âÈ­ ---
+                    // --- ì¶”ê°€: í”Œë ˆì´ì–´2 ë±€ ì´ˆê¸° ìœ„ì¹˜/ìƒíƒœ ì´ˆê¸°í™” ---
                     S2.headX = BoardX / 4;
                     S2.headY = BoardY / 2;
                     S2.direction = '\0';
@@ -896,23 +898,23 @@ int main()
                 do {
                     handle_input();
 
-                    // 1P ÀÌµ¿
+                    // 1P ì´ë™
                     S.move_snake();
 
-                    // 2P ÀÌµ¿ (¸ÖÆ¼ ¸ğµåÀÏ ¶§¸¸)
+                    // 2P ì´ë™ (ë©€í‹° ëª¨ë“œì¼ ë•Œë§Œ)
                     if (L.mode == 'M') {
                         S2.move_snake();
                     }
 
-                    // º¸µå °»½Å
+                    // ë³´ë“œ ê°±ì‹ 
                     G->game_flow();
 
-                    // ¸ÖÆ¼ ¸ğµå Ãæµ¹(°ÔÀÓ ¿À¹ö) Ã¼Å©
+                    // ë©€í‹° ëª¨ë“œ ì¶©ëŒ(ê²Œì„ ì˜¤ë²„) ì²´í¬
                     if (L.mode == 'M' && (G->game_over1() || G->game_over2())) 
                     {
                         set_screen();
 
-                        // ½ÂÀÚ ÆÇÁ¤ ¹× Á¡¼ö ÀúÀå
+                        // ìŠ¹ì íŒì • ë° ì ìˆ˜ ì €ì¥
                         if (G->game_over1() && !G->game_over2()) {
                             cout << "\nPlayer2 Wins!\n";
                             U.set_score(F.score2);
@@ -922,16 +924,16 @@ int main()
                             U.set_score(F.score);
                         }
                         else {
-                            // µ¿½Ã Ãæµ¹
+                            // ë™ì‹œ ì¶©ëŒ
                             if (F.score > F.score2) { cout << "\nPlayer1 Wins!\n"; U.set_score(F.score); }
                             else if (F.score2 > F.score) { cout << "\nPlayer2 Wins!\n"; U.set_score(F.score2); }
                             else { cout << "\nDraw!\n";       U.set_score(F.score); }
                         }
 
-                        // À¯Àú Á¡¼ö ÆÄÀÏ¿¡ ÀúÀå
+                        // ìœ ì € ì ìˆ˜ íŒŒì¼ì— ì €ì¥
                         U.save();
 
-                        // ½Ì±Û ¸ğµå¿Í µ¿ÀÏÇÑ °ÔÀÓ ¿À¹ö ÈÄ Èå¸§(Àç½ÃÀÛ or Á¾·á)
+                        // ì‹±ê¸€ ëª¨ë“œì™€ ë™ì¼í•œ ê²Œì„ ì˜¤ë²„ í›„ íë¦„(ì¬ì‹œì‘ or ì¢…ë£Œ)
                         G->flow_after_gameover();
                     }
 
@@ -947,25 +949,25 @@ int main()
                 set_screen();
                 resume_game();
                 do {
-                    // 1) Å° ÀÔ·Â
+                    // 1) í‚¤ ì…ë ¥
                     handle_input();
 
-                    // 2) 1P ÀÌµ¿ & ²¿¸®
+                    // 2) 1P ì´ë™ & ê¼¬ë¦¬
                     S.move_snake();
 
-                    // 3) 2P ÀÌµ¿ & ²¿¸® (¸ÖÆ¼ÀÏ ¶§¸¸)
+                    // 3) 2P ì´ë™ & ê¼¬ë¦¬ (ë©€í‹°ì¼ ë•Œë§Œ)
                     if (L.mode == 'M') {
                         S2.move_snake();
                     }
 
-                    // 4) È­¸é °»½Å
+                    // 4) í™”ë©´ ê°±ì‹ 
                     G->game_flow();
 
-                    // 5) ¸ÖÆ¼ ¸ğµåÀÏ ¶§¸¸ ¸Ó¸® Ãæµ¹ Ã¼Å©
+                    // 5) ë©€í‹° ëª¨ë“œì¼ ë•Œë§Œ ë¨¸ë¦¬ ì¶©ëŒ ì²´í¬
                     if (L.mode == 'M' && (G->game_over1() || G->game_over2())) {
                         set_screen();
 
-                        // ½ÂÆĞ ÆÇÁ¤ ¹× Á¡¼ö ÀúÀå
+                        // ìŠ¹íŒ¨ íŒì • ë° ì ìˆ˜ ì €ì¥
                         if (G->game_over1() && !G->game_over2()) {
                             cout << "\nPlayer2 Wins!\n";
                             U.set_score(F.score2);
@@ -975,16 +977,16 @@ int main()
                             U.set_score(F.score);
                         }
                         else {
-                            // µ¿½Ã Ãæµ¹ ½Ã Á¡¼ö ºñ±³
+                            // ë™ì‹œ ì¶©ëŒ ì‹œ ì ìˆ˜ ë¹„êµ
                             if (F.score > F.score2) { cout << "\nPlayer1 Wins!\n"; U.set_score(F.score); }
                             else if (F.score2 > F.score) { cout << "\nPlayer2 Wins!\n"; U.set_score(F.score2); }
                             else { cout << "\nDraw!\n";       U.set_score(F.score); }
                         }
 
-                        // °á°ú ÀúÀå
+                        // ê²°ê³¼ ì €ì¥
                         U.save();
 
-                        // Àç½ÃÀÛ or Á¾·á
+                        // ì¬ì‹œì‘ or ì¢…ë£Œ
                         G->flow_after_gameover();
                     }
 
