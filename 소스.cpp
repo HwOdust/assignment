@@ -1,17 +1,14 @@
-//snake2 객프 과제 소스 파일
-
 #include <iostream>
-#include <conio.h>   //getch() and kbhit()
-#include <time.h>    //including time
-#include <windows.h> //sleep functions
-#include <fstream>   //file handling
+#include <conio.h>   //getch(), kbhit() 함수 사용 -> 키 입력 
+#include <time.h>    //srand(), time() 함수 사용 -> 오브젝트의 좌표 랜덤 설정
+#include <windows.h> //Sleep(), 콘솔 제어 함수 사용
+#include <fstream>   //파일 입출력 -> game user 목록 관리
 #include <string>
-#include <vector> //장애물 관리
+#include <vector> //오브젝트 기능을 위해 벡터 사용
+#define Max 30 
+static const int MAX_TAIL = 1000; //뱀의 최대 길이
 
-#define Max 30
-static const int MAX_TAIL = 1000;
-
-// Color Escape Sequences
+//색깔 출력을 위한 ANSI 시퀀스
 #define RED "\033[31m"
 #define RESET "\033[0m"
 #define GREEN "\033[32m"
@@ -20,13 +17,20 @@ static const int MAX_TAIL = 1000;
 #define PURPLE "\033[35m"
 
 using namespace std;
+
+//게임 화면 크기 변수
 int BoardX = 60;
 int BoardY = 20;
-void save_game();
-void set_screen();
-enum objectType { OBSTACLE, MINE, BUFF };
-template <class T>
 
+//전역 함수
+void save_game(); //게임 상태 파일로 저장
+void set_screen(); //콘솔 화면 지우기
+
+//장애물 종류 열거형
+enum objectType { OBSTACLE, MINE, BUFF };
+
+//템플릿 함수: 승/패 메세지 출력
+template <class T>
 void show(T a)
 {
     if (a == 1)
@@ -41,17 +45,15 @@ void show(T a)
     }
 }
 
+//사용자 정보 관리 클래스
 class User
 {
-    // Class User Added For Multiplayer Features
-
-    string name;
-    string winner;
-    int high_score, scores;
+    string name; //플레이어 이름
+    string winner; //최고 점수자 이름
+    int high_score; //최고 점수
+    int scores; //현재 게임 점수
 
 public:
-    // constructor called
-
     User()
     {
         winner = '\0';
@@ -59,46 +61,40 @@ public:
         high_score = 0;
         scores = 0;
     }
+
+    //플레이어 이름 입력
     void get()
     {
-        cout << "Who's playing: ";
+        cout << "\tWho's playing: ";
         cin >> name;
     }
+
+    //현재 점수 설정
     void set_score(int s)
     {
         scores = s;
     }
 
-    // Saving User name and scores
-
+    //userdata.txt에 이름과 점수 저장
     void save()
     {
         ofstream user("userdata.txt", ios::app);
-        try
-        {
-            if (user.is_open())
-            {
-                user << name << endl
-                    << scores << endl;
-                user.close();
-            }
-            else
-                throw 0;
-        }
-        catch (int a)
+        if (!user.is_open())
         {
             cout << "user file not opened..." << endl;
             exit(0);
         }
+        user << name << endl
+            << scores << endl;
     }
 
+    //이름 반환
     string return_name()
     {
         return name;
     }
 
-    // Function to calculate high score and save it in the file
-
+    //userdata.txt에서 최고 점수자와 점수 읽기
     void get_highscore()
     {
         ifstream read("userdata.txt");
@@ -131,8 +127,7 @@ public:
         }
     }
 
-    // function used to Show the list of the Users present in the file ;
-
+    //유저 리스트 출력
     void show_list()
     {
         ifstream read1("userdata.txt");
@@ -141,6 +136,8 @@ public:
             if (read1.is_open())
             {
                 string user, scor;
+
+                //이름과 점수를 줄 단위로 읽어서 출력
                 while (!read1.eof())
                 {
                     getline(read1, user);
@@ -160,7 +157,6 @@ public:
             exit(0);
         }
     }
-
     int return_highscore()
     {
         get_highscore();
@@ -173,19 +169,23 @@ public:
     }
 } U;
 
+
+//Snake 클래스: 뱀의 머리/꼬리 위치, 길이, 이동 방향 관리
 class Snake : public User
 {
 public:
-    int headX;
-    int headY;
-    int size;
-    int* tailX;
-    int* tailY;     // snake position, pointers for tail
-    char direction; // for controlling the direction
+    int headX, headY; //머리 좌표
+    int size; //뱀의 길이
+    int* tailX; //꼬리 x좌표 배열
+    int* tailY; //꼬리 y좌표 배열
+    char direction; //이동 방향 문자
+
     virtual void polymorphism()
     {
         cout << "Polymorphism used..." << endl;
     }
+
+    //생성자: 기본 길이 설정, 꼬리 배열 할당
     Snake(int s = 1)
     {
         headX = BoardX / 2;
@@ -204,14 +204,14 @@ public:
     {
         switch (direction)
         {
-        case 'a': headX--; break;
-        case 's': headY++; break;
-        case 'd': headX++; break;
-        case 'w': headY--; break;
-        case 'j': headX--; break;
-        case 'k':headY++; break;
-        case 'l':headX++; break;
-        case 'i':headY--; break;
+            case 'a': headX--; break;
+            case 's': headY++; break;
+            case 'd': headX++; break;
+            case 'w': headY--; break;
+            case 'j': headX--; break;
+            case 'k': headY++; break;
+            case 'l': headX++; break;
+            case 'i': headY--; break;
         }
     }
 
@@ -874,7 +874,7 @@ int main()
                 set_screen();
                 cout << "\n\tSelect One Mode:\n";
                 cout << "\t1.General Mode\n";
-                cout << "\t2.Advanced Mode\n\t";
+                cout << "\t2.Advanced Mode\n";
                 cout << "\t3.Multiplayer Mode\n\t";
                 cin >> flow;
                 if (flow == 1)
