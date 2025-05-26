@@ -188,18 +188,19 @@ public:
     //생성자: 기본 길이 설정, 꼬리 배열 할당
     Snake(int s = 1)
     {
-        headX = BoardX / 2;
-        headY = BoardY / 2; // snake initial position
+        headX = BoardX / 2; //뱀 초기 머리 위치
+        headY = BoardY / 2; 
         direction = '\0';
         size = s;
-        tailX = new int[MAX_TAIL];
-        tailY = new int[MAX_TAIL]; // allocating dynamic arrays for the tail
-        for (int i = 0; i < size; i++)
+        tailX = new int[MAX_TAIL]; //배열 동적 할당
+        tailY = new int[MAX_TAIL]; 
+        for (int i = 0; i < size; i++) //몸통 초기화
         {
-            tailX[i] = tailY[i] = 0; // initiallizing tail
+            tailX[i] = tailY[i] = 0;
         }
     }
 
+    //방향에 따라 머리 이동
     void move_snake()
     {
         switch (direction)
@@ -208,23 +209,27 @@ public:
             case 's': headY++; break;
             case 'd': headX++; break;
             case 'w': headY--; break;
+
+            //멀티 플레이용 키 처리
             case 'j': headX--; break;
             case 'k': headY++; break;
             case 'l': headX++; break;
             case 'i': headY--; break;
         }
     }
-
+  
+    //꼬리가 머리를 따라 이동하도록 업데이트
     void tail_movement()
     {
-        int prevX = tailX[0]; // initial conditions for the tail
-        int prevY = tailY[0]; // store the initial position of = 0
+        int prevX = tailX[0]; //이전 좌표 저장
+        int prevY = tailY[0];
+          
         int prev2X, prev2Y;
-        tailX[0] = headX;
-        tailY[0] = headY; // when snake moves, its previous position is stored in the array
+        tailX[0] = headX; //뱀이 움직일 때, 배열에 이전 좌표 저장
+        tailY[0] = headY;
         for (int i = 1; i < size; i++)
         {
-            prev2X = tailX[i]; // for loop for growing the tail
+            prev2X = tailX[i]; // 뱀 좌표 업데이트
             prev2Y = tailY[i];
             tailX[i] = prevX;
             tailY[i] = prevY;
@@ -233,6 +238,7 @@ public:
         }
     }
 
+    //뱀 길이 증가
     void increase_size()
     {
         if (size < MAX_TAIL)
@@ -241,11 +247,10 @@ public:
         }
     }
 
-    // Operator Overloading Used !!
-
+    //연산자 오버로딩: 깊은 복사
     void operator=(Snake& s)
     {
-        headX = s.headX; // OPERATOR OVERLOADING USED FOR COPYING VALUES !
+        headX = s.headX;
         headY = s.headY;
         for (int i = 0; i < size; i++)
         {
@@ -254,54 +259,64 @@ public:
         }
         direction = s.direction;
     }
-} S;
+} S; //플레이어 1
+Snake S2; //플레이어 2
 
-Snake S2;
-
+//Frui 클래스: 과일 위치, 점수, 최대 점수 관리
 class Fruit : public Snake
 {
 public:
-    int fruitX;
+    int fruitX; //좌표
     int fruitY;
-    int score;
+    int score; //플레이어 1, 2의 점수
     int score2;
-    int max_score;
+    int max_score; //레벨업을 위한 목표 점수
+
     Fruit()
     {
         score = score2 = 0;
         max_score = 40;
         fruit_random_pos();
     }
+
+    //과일을 무작위로 재배치
     void fruit_random_pos()
     {
         fruitX = 1 + (rand() % (BoardX - 2));
         fruitY = 1 + (rand() % (BoardY - 2));
     }
+
+    //플레이어 1의 과일 먹기 처리
     void fruit_eat()
     {
         if (S.headX == fruitX && S.headY == fruitY)
         {
-            fruit_random_pos();
-            score += 10;
-            S.increase_size(); // increase the size of the snake when fruit is eaten
+            fruit_random_pos(); //과일 위치 재배치
+            score += 10; //점수 증가
+            S.increase_size(); //과일을 먹었다면 사이즈+1
         }
-        S.tail_movement();
+        S.tail_movement(); //꼬리 위치 처리
     }
+
+    //플레이어 2의 과일 먹기 처리
     void fruit_eat2()
     {
-        if (S2.headX == fruitX && S2.headY == fruitY) {
+        if (S2.headX == fruitX && S2.headY == fruitY) 
+        {
             fruit_random_pos();
-            score2 += 10;           // 추가
-            S2.increase_size();     // 추가
+            score2 += 10;         
+            S2.increase_size();
         }
-        S2.tail_movement();         // 추가
+        S2.tail_movement();
     }
 } F;
 
-class Object {
+// Object 클래스: 장애물/지뢰/버프를 관리
+class Object 
+{
 public:
-    int x, y;
-    objectType type;
+    int x, y; //오브젝트의 위치
+    objectType type; //오브젝트의 종류
 
     Object()
         : x(0), y(0), type(OBSTACLE) {}
@@ -312,27 +327,24 @@ public:
 
 vector<Object> objects; //모든 오브젝트를 관리할 벡터
 
-
+//level 클래스: 레벨별 장애물 배치, 레벨업 관리
 class level : public Fruit
 {
 public:
-    int lev;
-    int max_level;
-    char mode;
+    int lev; //현재 레벨
+    int max_level; //최대 레벨
+    char mode; //모드 종류, G/A/M
     level() : lev(1), max_level(10) {}
 
+    //새 오브젝트 위치가 기존 요소와 겹치는지 검사
     bool isOverlap(int nx, int ny)
     {
-        // 과일과 겹쳤는지
         if (nx == F.fruitX && ny == F.fruitY) return true;
-        // 뱀 머리와 겹쳤는지
         if (nx == S.headX && ny == S.headY) return true;
-        // 뱀 꼬리와 겹쳤는지
         for (int i = 0; i < S.size; ++i) {
             if (S.tailX[i] == nx && S.tailY[i] == ny)
                 return true;
         }
-        // 기존 오브젝트와 겹쳤는지 (전역 vector<Object> objects 사용)
         for (auto& o : objects) {
             if (o.x == nx && o.y == ny)
                 return true;
@@ -340,6 +352,7 @@ public:
         return false;
     }
 
+    //레벨업 처리: 목표 점수 달성 시 장애물 추가, 화면 축소 등 
     void incr_level()
     {
         if (lev < max_level && F.score >= F.max_score)
@@ -353,14 +366,14 @@ public:
             F.score = 0;
             objects.clear(); //이전 레벨 오브젝트 초기화
 
-            //장애물 생성
+            //장애물 1개 생성
             {
                 int ox, oy;
                 do
                 {
                     ox = 1 + rand() % (BoardX - 2);
                     oy = 1 + rand() % (BoardY - 2);
-                } while (isOverlap(ox, oy)); //좌표 중복 확인
+                } while (isOverlap(ox, oy));
                 objects.emplace_back(ox, oy, OBSTACLE);
             }
 
@@ -413,6 +426,7 @@ public:
     }
 } L;
 
+//Game 클래스: 실제 게임 진행 흐름, 화면 표시, 충돌 처리
 class Game : public level
 {
 public:
@@ -433,7 +447,7 @@ public:
         return false;
     }
 
-
+    //게임판 출력
     void show_board()
     {
         for (int i = 0; i < BoardY; i++)
@@ -495,10 +509,10 @@ public:
         }
     }
 
-
+    //한 프레임 치 진행: 이동, 충돌, 과일, 레벨업, 화면 갱신
     void game_flow()
     {
-        //0.멀티모드: 머리끼리 닿으면 바로 게임 종료
+        //멀티모드: 머리끼리 충돌 즉시 게임 오버
         if (L.mode == 'M' && S.headX == S2.headX && S.headY == S2.headY) {
             set_screen();
             cout << RED << "\n\n\tHeads collided! Game Over.\n" << RESET;
@@ -507,7 +521,7 @@ public:
             return;  // 나머지 로직 스킵
         }
 
-        //1. 오브젝트 충돌 처리
+        //오브젝트 충돌 처리
         for (auto it = objects.begin(); it != objects.end(); ++it)
         {
             if (S.headX == it->x && S.headY == it->y)
@@ -534,7 +548,7 @@ public:
             }
 
         }
-        //2. 일반 게임 흐름
+        //일반 게임 흐름
         if (game_over() == 0) //게임 오버가 아니라면
         {
             F.fruit_eat(); //과일 체크
@@ -576,20 +590,24 @@ public:
         }
         Sleep(30); //프레임 속도 조절
     }
+
+    //게임 오버 판단
     bool game_over()
     {
-        //if (L.mode == 'M')return 0;
-
         for (int i = 5; i < S.size; i++)
+            //자기 자신에게 부딪혔을 때
             if (S.tailX[i] == S.headX && S.tailY[i] == S.headY)
                 return 1;
-        if (L.mode == 'M') {
+        if (L.mode == 'M')
+        {
+            //멀티모드일 때, 두번째 뱀도 확인
             for (int i = 5; i < S2.size; i++)
                 if (S2.tailX[i] == S2.headX && S2.tailY[i] == S2.headY)
                     return true;  // 추가
         }
         if (L.mode == 'G'||L.mode=='M')
         {
+            //advanced mode가 아니라면, 벽 통과 시 반대편으로 이동
             if (S.headX >= BoardX)
                 S.headX = 0;
             else if (S.headX < 0)
@@ -599,6 +617,7 @@ public:
             else if (S.headY < 0)
                 S.headY = BoardY - 1;
 
+            //멀티모드의 경우 두번째 뱀도 처리
             if(L.mode=='M')
             {
                 if (S2.headX >= BoardX)
@@ -614,11 +633,14 @@ public:
         }
         else if (L.mode == 'A')
         {
+            //advanced 모드라면 게임 종료
             if (S.headX == 0 || S.headX == BoardX - 1 || S.headY == 0 || S.headY == BoardY)
                 return 1;
         }
         return 0;
     }
+
+    //게임 종료 시, 재시작/종료 선택 처리
     void flow_after_gameover()
     {
         int flow;
@@ -627,8 +649,11 @@ public:
         cin >> flow;
         try
         {
-            if (flow == 1)
+            if (flow == 1) 
             {
+                //게임을 재시작한다면
+
+                //뱀 초기화
                 S.headX = BoardX / 2;
                 S.headY = BoardY / 2;
                 S.direction = '\0';
@@ -651,14 +676,14 @@ public:
                     S2.tailX = new int[MAX_TAIL];
                     S2.tailY = new int[MAX_TAIL];
                 }
-
-                set_screen();
+                set_screen(); //화면 초기화
             }
             else if (flow == 2)
             {
+                //게임 재시작하지 않는다면
                 U.set_score(F.score);
-                U.save();
-                exit(0);
+                U.save(); //유저 정보 저장
+                exit(0); //종료
             }
             else
                 throw flow;
@@ -670,53 +695,57 @@ public:
         }
     }
 
-    bool game_over1() {
-        // 1) 헤드-투-헤드 충돌
+    //멀티모드 시, 출력값 위해 유저 1과 2의 사망 여부 관리
+    bool game_over1() 
+    {
+        // 1) 서로의 머리가 부딪혔을 때
         if (S.headX == S2.headX && S.headY == S2.headY)
             return true;
-        // 2) P1 자기 몸통과 충돌
+        // 2) 유저 1이 자신의 몸과 부딪혔을 때
         for (int i = 5; i < S.size; ++i) {
             if (S.tailX[i] == S.headX && S.tailY[i] == S.headY)
                 return true;
         }
         return false;
     }
-
-    // P2 충돌 검사 (멀티 전용)
-    bool game_over2() {
-        // 1) 헤드-투-헤드 충돌
+    bool game_over2() 
+    {
+        // 1) 서로의 머리가 부딪혔을 때
         if (S2.headX == S.headX && S2.headY == S.headY)
             return true;
-        // 2) P2 자기 몸통과 충돌
-        for (int i = 5; i < S2.size; ++i) {
+        // 2) 유저 2가 자신의 몸과 부딪혔을 때
+        for (int i = 5; i < S2.size; ++i) 
+        {
             if (S2.tailX[i] == S2.headX && S2.tailY[i] == S2.headY)
                 return true;
         }
         return false;
     }
-
 }*G;
 
-// FILE HANDLIND USED FOR SAVING AND RESUMING GAME !!
-
-void save_game() // Save Game ftn for storing data in the file .
+//게임 상태를 파일에 저장하는 함수
+void save_game()
 {
-    ofstream out("Game.txt"); //  OFSTREAM Class used !
+    ofstream out("Game.txt"); //Game.txt 파일을 쓰기 모드로 열기
     try
     {
         if (out.is_open())
         {
+            //화면 크기, 보드 크기 정보 저장
             out << BoardX << endl;
             out << BoardY << endl;
-            out << S.headX << endl; //  All the data written in the file
+            //플레이어 1의 머리 위치, 뱀 길이, 방향 저장
+            out << S.headX << endl;
             out << S.headY << endl;
             out << S.size << endl;
             out << S.direction << endl;
+            //뱀 꼬리 좌표를 순서대로 저장
             for (int i = 0; i < S.size; i++)
             {
                 out << S.tailX[i] << endl;
                 out << S.tailY[i] << endl;
             }
+            //과일 위치, 최대 점수, 현재 점수 저장
             out << F.fruitX << endl;
             out << F.fruitY << endl;
             out << F.max_score << endl;
@@ -724,33 +753,36 @@ void save_game() // Save Game ftn for storing data in the file .
             out << L.lev << endl;
             out << G->mode;
             out.close();
+
             cout << "Game Saved...";
-            exit(0);
+            exit(0); //종료
         }
         else
             throw 0;
     }
     catch (int a)
-
     {
         cout << "File is not opened..." << endl;
         exit(0);
     }
 }
 
-void resume_game() // Resume Game ftn for reading data from the file .
+//저장된 파일로부터 게임을 불러오는 함수
+void resume_game()
 {
-    ifstream in("Game.txt"); // IFSTREAM Class Used !
+    ifstream in("Game.txt"); //Game.txt 파일을 읽기 모드로 열기
     try
     {
         if (in.is_open())
         {
+            //저장된 순서대로 데이터를 읽어서 변수에 복원
             in >> BoardX;
             in >> BoardY;
-            in >> S.headX; // All the data read from the file
+            in >> S.headX; 
             in >> S.headY;
             in >> S.size;
             in >> S.direction;
+            //꼬리 배열 재할당 후 좌표 읽어오기
             delete[] S.tailX;
             delete[] S.tailY;
             S.tailX = new int[S.size];
@@ -760,12 +792,18 @@ void resume_game() // Resume Game ftn for reading data from the file .
                 in >> S.tailX[i];
                 in >> S.tailY[i];
             }
+
+            //과일 위치, 최대 점수, 현재 점수 복원
             in >> F.fruitX;
             in >> F.fruitY;
             in >> F.max_score;
             in >> F.score;
+
+            //레벨과 모드 정보 복원
             in >> L.lev;
             in >> G->mode;
+
+            //방향 초기화
             S.direction = '\0';
             in.close();
         }
@@ -779,6 +817,7 @@ void resume_game() // Resume Game ftn for reading data from the file .
     }
 }
 
+//콘솔 화면 전체를 지운 후, 새로 그리도록 초기화하는 함수
 void set_screen()
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -797,6 +836,7 @@ void set_screen()
     SetConsoleCursorPosition(hConsole, homeCoords);
 }
 
+//콘솔 커서를 보이지 않도록 설정
 void hide_cursor()
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -806,23 +846,28 @@ void hide_cursor()
     SetConsoleCursorInfo(hConsole, &cursorInfo);
 }
 
-// (main 함수 위, 모든 클래스 선언 아래에 추가)
-void handle_input() {
+//키 입력을 감지하여 뱀의 방향을 변경하거나 저장 키 처리
+void handle_input() 
+{
     if (kbhit()) 
     {
         char ch = getch();
-        switch (ch) {
-        case 'w': case 'a': case 's': case 'd':
-            S.direction = ch;
-            break;
-        case 'i': case 'j': case 'k': case 'l':
-            if (L.mode == 'M') S2.direction = ch; // 멀티일 때만 P2
-            break;
-        case 'x':
-            save_game();
-            break;
-        default:
-            ; // 나머지는 무시
+        switch (ch)
+        {
+            //WASD 키로 플레이어 1 이동
+            case 'w': case 'a': case 's': case 'd':
+                S.direction = ch;
+                break;
+            //IJKL 키로 플레이어 2 이동 (멀티일 떄만)
+            case 'i': case 'j': case 'k': case 'l':
+                if (L.mode == 'M') S2.direction = ch; // 멀티일 때만 P2
+                break;
+            //x키를 누르면 게임 저장
+            case 'x':
+                save_game();
+                break;
+            default:
+                ; // 나머지는 무시
         }
     }
 }
@@ -833,32 +878,30 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    srand((unsigned)time(nullptr));
+    srand((unsigned)time(nullptr)); //랜덤 시드 설정
+    hide_cursor(); //커서 숨기기
 
     int flow;
-    system("color 8A");
-    set_screen();
-    // String Function : Strcpy Used !!!
+    system("color 8A"); //콘솔 컬러 설정
+    set_screen(); //화면 초기화
 
+    //메인 메뉴 문자열
     char s1[Max];
     char s2[Max];
     char s3[Max];
     char s4[Max];
 
-    strcpy(s1, "1.New Game"); // Copying Text to str 1 !!!
-    strcpy(s2, "2.Resume Previous Game");
-    strcpy(s3, "3.Show the User list.");
-    strcpy(s4, "4.Exit Game");
+    strcpy(s1, "1.New Game"); //새 게임 시작
+    strcpy(s2, "2.Resume Previous Game"); //이전 게임 불러오기
+    strcpy(s3, "3.Show the User list."); //사용자 목록 보기
+    strcpy(s4, "4.Exit Game"); //게임 종료
 
-    // Printing All the strings  Step by Step !!!
-
+    //메뉴 출력
     cout << "\n\t" << s1;
     cout << "\n\t" << s2;
     cout << "\n\t" << s3;
     cout << "\n\t" << s4 << "\n\t";
-    cin >> flow;
-
-    hide_cursor();
+    cin >> flow; //사용자 선택 입력
 
     try
     {
@@ -866,25 +909,29 @@ int main()
         {
             switch (flow)
             {
-            case 1:
+            case 1: //새 게임
             {
-                U.get();
+                U.get(); //플레이어 이름 입력
                 Game G1;
                 G = &G1;
                 set_screen();
+
+                //모드 선택 메뉴
                 cout << "\n\tSelect One Mode:\n";
                 cout << "\t1.General Mode\n";
                 cout << "\t2.Advanced Mode\n";
                 cout << "\t3.Multiplayer Mode\n\t";
                 cin >> flow;
+
                 if (flow == 1)
-                    L.mode = 'G';
+                    L.mode = 'G'; //일반 모드
                 else if (flow == 2)
-                    L.mode = 'A';
+                    L.mode = 'A'; //어드밴스 모드
                 else if (flow == 3)
                 {
-                    L.mode = 'M';
-                    // --- 추가: 플레이어2 뱀 초기 위치/상태 초기화 ---
+                    L.mode = 'M'; //멀티플레이어 모드
+
+                    //플레이어2 초기화
                     S2.headX = BoardX / 4;
                     S2.headY = BoardY / 2;
                     S2.direction = '\0';
@@ -895,18 +942,14 @@ int main()
                 }
 
                 set_screen();
+
+                //게임 루프 시작
                 do {
-                    handle_input();
-
-                    // 1P 이동
-                    S.move_snake();
-
-                    // 2P 이동 (멀티 모드일 때만)
-                    if (L.mode == 'M') {
-                        S2.move_snake();
-                    }
-
-                    // 보드 갱신
+                    handle_input(); //키 입력 처리
+                    S.move_snake(); //플레이어1 이동
+                    if (L.mode == 'M') S2.move_snake(); //플레이어2 이동
+                   
+                    //한 프레임 진행
                     G->game_flow();
 
                     // 멀티 모드 충돌(게임 오버) 체크
@@ -915,78 +958,74 @@ int main()
                         set_screen();
 
                         // 승자 판정 및 점수 저장
-                        if (G->game_over1() && !G->game_over2()) {
+                        if (G->game_over1() && !G->game_over2()) 
+                        {
                             cout << "\nPlayer2 Wins!\n";
                             U.set_score(F.score2);
                         }
-                        else if (!G->game_over1() && G->game_over2()) {
+                        else if (!G->game_over1() && G->game_over2()) 
+                        {
                             cout << "\nPlayer1 Wins!\n";
                             U.set_score(F.score);
                         }
-                        else {
+                        else 
+                        {
                             // 동시 충돌
                             if (F.score > F.score2) { cout << "\nPlayer1 Wins!\n"; U.set_score(F.score); }
                             else if (F.score2 > F.score) { cout << "\nPlayer2 Wins!\n"; U.set_score(F.score2); }
                             else { cout << "\nDraw!\n";       U.set_score(F.score); }
                         }
 
-                        // 유저 점수 파일에 저장
-                        U.save();
+                        U.save(); //결과 저장
 
-                        // 싱글 모드와 동일한 게임 오버 후 흐름(재시작 or 종료)
-                        G->flow_after_gameover();
+                        G->flow_after_gameover(); //재시작 or 종료
                     }
-
-                    Sleep(75);
+                    Sleep(75); //프레임 조절 
                 } while (1);
 
                 break;
             }
-            case 2:
+            case 2: //이전 게임 불러오기
             {
                 Game G2;
                 G = &G2;
                 set_screen();
-                resume_game();
-                do {
-                    // 1) 키 입력
-                    handle_input();
+                resume_game(); //저장된 상태 복원
 
-                    // 2) 1P 이동 & 꼬리
+                //게임 루프, case1과 동일
+                do {
+                    handle_input();
                     S.move_snake();
 
-                    // 3) 2P 이동 & 꼬리 (멀티일 때만)
                     if (L.mode == 'M') {
                         S2.move_snake();
                     }
 
-                    // 4) 화면 갱신
                     G->game_flow();
 
-                    // 5) 멀티 모드일 때만 머리 충돌 체크
-                    if (L.mode == 'M' && (G->game_over1() || G->game_over2())) {
+                    if (L.mode == 'M' && (G->game_over1() || G->game_over2())) 
+                    {
                         set_screen();
 
-                        // 승패 판정 및 점수 저장
-                        if (G->game_over1() && !G->game_over2()) {
+                        if (G->game_over1() && !G->game_over2()) 
+                        {
                             cout << "\nPlayer2 Wins!\n";
                             U.set_score(F.score2);
                         }
-                        else if (!G->game_over1() && G->game_over2()) {
+                        else if (!G->game_over1() && G->game_over2()) 
+                        {
                             cout << "\nPlayer1 Wins!\n";
                             U.set_score(F.score);
                         }
-                        else {
-                            // 동시 충돌 시 점수 비교
+                        else 
+                        {
                             if (F.score > F.score2) { cout << "\nPlayer1 Wins!\n"; U.set_score(F.score); }
                             else if (F.score2 > F.score) { cout << "\nPlayer2 Wins!\n"; U.set_score(F.score2); }
                             else { cout << "\nDraw!\n";       U.set_score(F.score); }
                         }
 
-                        // 결과 저장
                         U.save();
 
-                        // 재시작 or 종료
                         G->flow_after_gameover();
                     }
 
@@ -995,11 +1034,11 @@ int main()
                 break;
             }
 
-            case 3:
+            case 3: //유저 목록 출력
             {
                 U.show_list();
             }
-            case 4:
+            case 4: //종료
             {
                 exit(0);
                 break;
@@ -1007,7 +1046,7 @@ int main()
             }
         }
         else
-            throw flow;
+            throw flow; //잘못된 입력 예외 처리
     }
     catch (int f)
     {
